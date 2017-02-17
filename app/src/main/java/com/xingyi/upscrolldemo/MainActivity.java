@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,8 +68,23 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                String inputName = editable.toString();
+                String firstNamePinYin = "";
+                String lastNamePinYin = "";
+                if (!TextUtils.isEmpty(inputName)) {
+                    if (inputName.length() == 1) {
+                        firstNamePinYin = PinYinUtils.getInstance().getPinYin(inputName);
+                        lastNamePinYin = "";
+                    } else if (inputName.length() > 1) {
+                        String firstNameHanzi = inputName.substring(0, 1);
+                        String lastNameHanzi = inputName.substring(1, inputName.length());
+
+                        firstNamePinYin = PinYinUtils.getInstance().getPinYin(firstNameHanzi);
+                        lastNamePinYin = PinYinUtils.getInstance().getPinYin(lastNameHanzi);
+                    }
+                }
                 String pinyin = PinYinUtils.getInstance().getPinYin(editable.toString());
-                Log.e("---拼音---->", pinyin);
+                Log.e("---全拼音---->", pinyin + "---姓拼音--->" + firstNamePinYin + "----名字拼音--->" + lastNamePinYin);
             }
         });
 
