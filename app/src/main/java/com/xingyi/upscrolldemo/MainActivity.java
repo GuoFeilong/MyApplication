@@ -1,17 +1,22 @@
 package com.xingyi.upscrolldemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private int originalParentWidth;
     private int originalParentHeight;
     private AppBarLayout appBarLayout;
+    private EditText etChinease;
 
 
     @Override
@@ -36,9 +42,35 @@ public class MainActivity extends AppCompatActivity {
         searchIconContainer = (RelativeLayout) findViewById(R.id.rl_iv_search_icon_container);
         searchParent = (LinearLayout) findViewById(R.id.ll_search_parent);
         ivSearch = (ImageView) findViewById(R.id.iv_search);
+        etChinease = (EditText) findViewById(R.id.et_chinese);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         HomeReAdapter homeReAdapter = new HomeReAdapter();
         recyclerView.setAdapter(homeReAdapter);
+
+        ivSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ATContactUtil.gotoSystemContact(MainActivity.this, 199);
+            }
+        });
+
+        etChinease.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String pinyin = PinYinUtils.getInstance().getPinYin(editable.toString());
+                Log.e("---拼音---->", pinyin);
+            }
+        });
 
     }
 
@@ -55,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         searchContainer.setLayoutParams(layoutParams);
         searchContainer.setAlpha(percent);
         ivSearch.setAlpha(1.0F - percent);
-        Log.e(TAG, "--->>偏移量--->" + percent);
+//        Log.e(TAG, "--->>偏移量--->" + percent);
     }
 
     @Override
@@ -70,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                Log.e(TAG, "---偏移量-->verticalOffset--->>>>>>  " + verticalOffset);
+//                Log.e(TAG, "---偏移量-->verticalOffset--->>>>>>  " + verticalOffset);
                 changeSearchLayoutParm(1.0F - Math.abs(verticalOffset) * 1.0F / Math.abs(originalParentHeight), verticalOffset);
 
             }
@@ -104,4 +136,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 199:
+                ATContactUtil.getContactResult(this, data, new ATContactUtil.OnPhoneNumGetListener() {
+                    @Override
+                    public void getPhoneNum(String phoneNum) {
+                        Toast.makeText(MainActivity.this, "选择的手机号:" + phoneNum, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+        }
+    }
+
 }
